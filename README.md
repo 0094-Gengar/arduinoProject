@@ -20,16 +20,16 @@
 # Controller Tower Flow
 ```mermaid
 flowchart TD
-    A[Area\nRFID tag] -->|WIFI & GPS signal\n **Information** \n Time, Distance, Location| B(Control Tower server)
+    A[Area<br>RFID tag] -->|WIFI & GPS signal<br> **Information** <br> Time, Distance, Location| B(Control Tower server)
     B -->|Processing| C{Web Server}
-    C -->|User Interface| D[LIVE\n current patrol area]
+    C -->|User Interface| D[LIVE<br> current patrol area]
     C --> |Select Area|B -->|Area Operation|A
-    D --> I[record] --> J[total patrol time\n start time / finish time]
+    D --> I[record] --> J[total patrol time<br> start time / finish time]
     I --> K[total distance]
     E --> I
     F --> I
-    C -->|User Interface| E[LIVE\n elapsed time]
-    C -->|User Interface| F[LIVE\n cumulative patrol distance]
+    C -->|User Interface| E[LIVE<br> elapsed time]
+    C -->|User Interface| F[LIVE<br> cumulative patrol distance]
     C -->|User Interface| G[Button]
     G --> H[current location]
 ```
