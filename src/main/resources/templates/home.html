@@ -123,7 +123,7 @@
 <body>
 
 <header>
-    <img id="logo" src="sejong_logo.png" alt="학교 로고">
+    <img id="logo" th:src="@{/sejong_logo.png}" alt="학교 로고">
     <div id="date-time">실시간 시간 로딩 중...</div>
 </header>
 
@@ -132,7 +132,7 @@
     <div class="section-container">
         <div class="section-title">&lt;순찰 구역 지도&gt;</div>
         <div id="map">
-            <img src="map_sample.png" alt="지도">
+            <img th:src="@{/map_sample.png}" alt="지도">
             <!-- 구역 A, B, C에 대해 zoneStatus의 상태를 동적으로 반영 -->
             <button class="map-button"
                     th:style="'top: 30%; left: 40%; background-color: ' + (${zoneStatus['zone_a']} ? 'green' : 'red')">[구역 A]</button>
