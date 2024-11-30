@@ -1,5 +1,6 @@
+
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -132,9 +133,14 @@
         <div class="section-title">&lt;순찰 구역 지도&gt;</div>
         <div id="map">
             <img src="map_sample.png" alt="지도">
-            <button class="map-button" style="top: 30%; left: 40%;">[구역 A]</button>
-            <button class="map-button" style="top: 50%; left: 70%;">[구역 B]</button>
-            <button class="map-button" style="top: 80%; left: 20%;">[구역 C]</button>
+            <!-- 구역 A, B, C에 대해 zoneStatus의 상태를 동적으로 반영 -->
+            <button class="map-button"
+                    th:style="'top: 30%; left: 40%; background-color: ' + (${zoneStatus['zone_a']} ? 'green' : 'red')">[구역 A]</button>
+            <button class="map-button"
+                    th:style="'top: 50%; left: 70%; background-color: ' + (${zoneStatus['zone_b']} ? 'green' : 'red')">[구역 B]</button>
+            <button class="map-button"
+                    th:style="'top: 80%; left: 20%; background-color: ' + (${zoneStatus['zone_c']} ? 'green' : 'red')">[구역 C]</button>
+
         </div>
     </div>
 

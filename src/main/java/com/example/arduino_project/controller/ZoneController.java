@@ -2,12 +2,14 @@ package com.example.arduino_project.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@RestController
+@Controller
 @RequestMapping("/zones")
 public class ZoneController {
 
@@ -18,6 +20,12 @@ public class ZoneController {
         zoneStatus.put("zone_a", false); // 초기 상태는 비활성화
         zoneStatus.put("zone_b", false);
         zoneStatus.put("zone_c", false);
+    }
+
+    @GetMapping("/home")
+    public String home(Model model) {
+        model.addAttribute("zoneStatus", zoneStatus);
+        return "home";
     }
 
     // 구역 활성화/비활성화 상태 변경
@@ -41,5 +49,10 @@ public class ZoneController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
         return ResponseEntity.ok(status);
+    }
+
+    // Getter to access the zoneStatus map for Thymeleaf
+    public Map<String, Boolean> getZoneStatus() {
+        return zoneStatus;
     }
 }
