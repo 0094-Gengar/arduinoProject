@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>순찰 관리 시스템</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-bottom: 2px solid #ddd;
+        }
+
+        #logo {
+            width: 100px;
+            height: auto;
+        }
+
+        #date-time {
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .section-container {
+            display: inline-block;
+            text-align: left;
+            margin: 20px 0;
+            width: 70%;
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        #map {
+            position: relative;
+            width: 70%;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
+
+        #map img {
+            width: 100%;
+            height: auto;
+        }
+
+        .map-button {
+            position: absolute;
+            background-color: #ccc; /* 기본 상태는 회색 */
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transform: translate(-50%, -50%);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            background-color: white;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            color: white;
+            font-size: 1.1em;
+        }
+
+        th {
+            background-color: #111;
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #111;
+        }
+
+        .highlight {
+            color: red;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            color: #888;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <img id="logo" src="sejong_logo.png" alt="학교 로고">
+    <div id="date-time">실시간 시간 로딩 중...</div>
+</header>
+
+<main>
+    <!-- 순찰 구역 지도 섹션 -->
+    <div class="section-container">
+        <div class="section-title">&lt;순찰 구역 지도&gt;</div>
+        <div id="map">
+            <button id="zone_a_btn" class="map-button" style="top: 30%; left: 40%;" onclick="toggleZone('zone_a')">[구역 A]</button>
+            <button id="zone_b_btn" class="map-button" style="top: 50%; left: 70%;" onclick="toggleZone('zone_b')">[구역 B]</button>
+            <button id="zone_c_btn" class="map-button" style="top: 80%; left: 20%;" onclick="toggleZone('zone_c')">[구역 C]</button>
+        </div>
+    </div>
+</main>
+
+<footer>
+    - made by 신지훈 -
+</footer>
+
+<script>
+    // 실시간 시간 갱신 함수
+    function updateTime() {
+        const now = new Date();
+        const options = { month: 'long', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        const formattedTime = now.toLocaleString('ko-KR', options).replace(',', ' ');
+        document.getElementById('date-time').innerText = formattedTime;
+    }
+
+    // 1초마다 시간 갱신
+    setInterval(updateTime, 1000);
+    updateTime(); // 즉시 실행
+
+    // 구역 활성화/비활성화 상태 변경 및 버튼 색상 변경
+    function toggleZone(zoneId) {
+        fetch(`/zones/${zoneId}/toggle`, {
+            method: 'POST',
+        })
+            .then(response => response.json())
+            .then(data => {
+                const button = document.getElementById(`${zoneId}_btn`);
+                if (data.status) {
+                    button.style.backgroundColor = '#4CAF50'; // 활성화 상태 (초록색)
+                } else {
+                    button.style.backgroundColor = '#ccc'; // 비활성화 상태 (회색)
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+
+</body>
+</html>
