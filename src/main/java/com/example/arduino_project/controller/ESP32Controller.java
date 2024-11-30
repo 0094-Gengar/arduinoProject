@@ -1,39 +1,31 @@
 package com.example.arduino_project.controller;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ESP32Controller {
 
-    private boolean isConnected = false; // 서버 연결 상태 변수
+    private boolean isConnected = false;
 
     @GetMapping("/")
     public String home() {
         return "Welcome to Arduino Project!";
     }
 
-    // 연결 상태를 확인하는 엔드포인트
     @GetMapping("/test")
     public String testConnection() {
-        if (isConnected) {
-            return "connected!!!";
-        } else {
-            return "connecting..."; // 연결 중 상태
-        }
+        return isConnected ? "connected!!!" : "connecting...";
     }
 
-    // 연결된 상태로 바꾸는 엔드포인트 (예시)
-    @GetMapping("/connect")
+    // POST 요청을 처리하여 연결 상태 변경
+    @PostMapping("/connect")
     public String connect() {
         isConnected = true;
-        return "Connected to the server.";
+        return "ESP32 connected!";
     }
 
-    // 연결 해제 상태로 바꾸는 엔드포인트 (예시)
-    @GetMapping("/disconnect")
+    @PostMapping("/disconnect")
     public String disconnect() {
         isConnected = false;
-        return "Disconnected from the server.";
+        return "ESP32 disconnected!";
     }
 }
