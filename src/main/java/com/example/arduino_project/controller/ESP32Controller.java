@@ -8,6 +8,11 @@ public class ESP32Controller {
 
     private boolean isConnected = false; // 서버 연결 상태 변수
 
+    @GetMapping("/")
+    public String home() {
+        return "Welcome to Arduino Project!";
+    }
+
     // 연결 상태를 확인하는 엔드포인트
     @GetMapping("/test")
     public String testConnection() {
