@@ -1,5 +1,3 @@
-// src/main/resources/static/js/app.js
-
 // 실시간 시간 갱신 함수
 function updateTime() {
     const now = new Date();
@@ -19,12 +17,7 @@ function toggleZone(zoneId) {
     })
         .then(response => response.json())
         .then(data => {
-            const button = document.getElementById(`${zoneId}_btn`);
-            if (data.status) {
-                button.style.backgroundColor = '#4CAF50'; // 활성화 상태 (초록색)
-            } else {
-                button.style.backgroundColor = '#ccc'; // 비활성화 상태 (회색)
-            }
+            updateZoneUI(zoneId, data.status); // UI 업데이트
         })
         .catch(error => console.error('Error:', error));
 }
@@ -32,17 +25,23 @@ function toggleZone(zoneId) {
 // WebSocket 연결 설정
 const socket = new SockJS('/ws');
 const stompClient = Stomp.over(socket);
+
 stompClient.connect({}, function (frame) {
     console.log('Connected: ' + frame);
 
-    // 구역 상태 업데이트를 받으면 버튼 색상 변경
-    stompClient.subscribe('/topic/zone-status', function (message) {
-        const status = JSON.parse(message.body);
-        const button = document.getElementById(`${zoneId}_btn`);
-        if (status) {
-            button.style.backgroundColor = '#4CAF50'; // 활성화 상태 (초록색)
-        } else {
-            button.style.backgroundColor = '#ccc'; // 비활성화 상태 (회색)
-        }
+    // 구역 상태 업데이트 수신
+    stompClient.subscribe('/topic/zoneStatus', function (message) {
+        const statusData = JSON.parse(message.body); // 예: { "zoneId": "zone_a", "status": true }
+        updateZoneUI(statusData.zoneId, statusData.status);
     });
 });
+
+// 구역 UI 업데이트 함수
+function updateZoneUI(zoneId, isActive) {
+    const button = document.getElementById(`${zoneId}_btn`);
+    if (isActive) {
+        button.style.backgroundColor = '#4CAF50'; // 활성화 상태 (초록색)
+    } else {
+        button.style.backgroundColor = '#ccc'; // 비활성화 상태 (회색)
+    }
+}

@@ -33,19 +33,25 @@ public class ZoneController {
 
     // 구역 활성화/비활성화 상태 변경
     @PostMapping("/{zoneId}/toggle")
-    public ResponseEntity<String> toggleZone(@PathVariable String zoneId) {
-        if (!zoneStatus.containsKey(zoneId)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid zone");
-        }
+    public ResponseEntity<Map<String, Boolean>> toggleZone(@PathVariable String zoneId) {
+        boolean newStatus = toggleZoneStatus(zoneId); // 상태 반전
 
-        boolean currentStatus = zoneStatus.get(zoneId);
-        zoneStatus.put(zoneId, !currentStatus); // 상태 반전
+        // WebSocket을 통해 실시간 업데이트 전송
+        String statusMessage = String.format("{\"zoneId\": \"%s\", \"status\": %b}", zoneId, newStatus);
+        messagingTemplate.convertAndSend("/topic/zoneStatus", statusMessage);
 
-        // 상태 변경 후 WebSocket을 통해 알리기
-        messagingTemplate.convertAndSend("/topic/zoneStatus", zoneId); // 구역 ID를 클라이언트로 전송
-
-        return ResponseEntity.ok("Zone " + zoneId + " updated to " + !currentStatus);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("status", newStatus);
+        return ResponseEntity.ok(response);
     }
+
+    private boolean toggleZoneStatus(String zoneId) {
+        boolean currentStatus = zoneStatus.getOrDefault(zoneId, false); // 현재 상태 가져오기 (기본값: false)
+        boolean newStatus = !currentStatus; // 상태 반전
+        zoneStatus.put(zoneId, newStatus); // 반전된 상태를 저장
+        return newStatus; // 새로운 상태 반환
+    }
+
 
     // 구역 상태 가져오기
     @GetMapping("/{zoneId}")
