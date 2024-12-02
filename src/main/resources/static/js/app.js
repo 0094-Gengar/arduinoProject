@@ -28,3 +28,21 @@ function toggleZone(zoneId) {
         })
         .catch(error => console.error('Error:', error));
 }
+
+// WebSocket 연결 설정
+const socket = new SockJS('/ws');
+const stompClient = Stomp.over(socket);
+stompClient.connect({}, function (frame) {
+    console.log('Connected: ' + frame);
+
+    // 구역 상태 업데이트를 받으면 버튼 색상 변경
+    stompClient.subscribe('/topic/zone-status', function (message) {
+        const status = JSON.parse(message.body);
+        const button = document.getElementById(`${zoneId}_btn`);
+        if (status) {
+            button.style.backgroundColor = '#4CAF50'; // 활성화 상태 (초록색)
+        } else {
+            button.style.backgroundColor = '#ccc'; // 비활성화 상태 (회색)
+        }
+    });
+});
