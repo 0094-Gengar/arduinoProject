@@ -78,13 +78,13 @@
             border-collapse: collapse;
             text-align: center;
             background-color: white;
-            border: 2px solid #000; /* 검정 테두리 */
+            border: 2px solid #000;
         }
 
         th, td {
             padding: 12px;
-            border: 1px solid #000; /* 검정 테두리 */
-            color: #000; /* 글씨 검정색 */
+            border: 1px solid #000;
+            color: #000;
             font-size: 1.1em;
         }
 
@@ -94,7 +94,7 @@
         }
 
         td {
-            background-color: #fff; /* 흰색 배경 */
+            background-color: #fff;
         }
 
         .highlight {
@@ -134,13 +134,15 @@
         <div id="map">
             <img th:src="@{/map_sample.png}" alt="지도">
             <!-- 구역 A, B, C에 대해 zoneStatus의 상태를 동적으로 반영 -->
-            <button class="map-button"
-                    th:style="'top: 30%; left: 40%; background-color: ' + (${zoneStatus['zone_a']} ? 'green' : 'red')">[구역 A]</button>
-            <button class="map-button"
-                    th:style="'top: 50%; left: 70%; background-color: ' + (${zoneStatus['zone_b']} ? 'green' : 'red')">[구역 B]</button>
-            <button class="map-button"
-                    th:style="'top: 80%; left: 20%; background-color: ' + (${zoneStatus['zone_c']} ? 'green' : 'red')">[구역 C]</button>
-
+            <button class="map-button" id="zone_a_btn"
+                    th:style="'top: 30%; left: 40%; background-color: ' + (${zoneStatus['zone_a']} ? 'green' : 'red')"
+                    onclick="toggleZone('zone_a')">[구역 A]</button>
+            <button class="map-button" id="zone_b_btn"
+                    th:style="'top: 50%; left: 70%; background-color: ' + (${zoneStatus['zone_b']} ? 'green' : 'red')"
+                    onclick="toggleZone('zone_b')">[구역 B]</button>
+            <button class="map-button" id="zone_c_btn"
+                    th:style="'top: 80%; left: 20%; background-color: ' + (${zoneStatus['zone_c']} ? 'green' : 'red')"
+                    onclick="toggleZone('zone_c')">[구역 C]</button>
         </div>
     </div>
 
@@ -154,7 +156,6 @@
                 <th>순찰 구역</th>
                 <th>순찰 시작 시간</th>
                 <th>순찰 경과 시간</th>
-<!--                <th>이동 경로</th>-->
             </tr>
             </thead>
             <tbody>
@@ -163,29 +164,7 @@
                 <td></td>
                 <td id="live-time">(실시간 정보)</td>
                 <td id="live-distance">(실시간 정보)</td>
-<!--                <td><button onclick="location.href='#'">지도 이동</button></td>-->
             </tr>
-            <!--            <tr>-->
-            <!--                <td>구역 A</td>-->
-            <!--                <th></th>-->
-            <!--                <td id="zone_a-time">-</td>-->
-            <!--                <td id="zone_a-distance">-</td>-->
-            <!--                <td><button onclick="location.href='#'">지도 이동</button></td>-->
-            <!--            </tr>-->
-            <!--            <tr>-->
-            <!--                <td>구역 B</td>-->
-            <!--                <th></th>-->
-            <!--                <td id="zone_b-time">-</td>-->
-            <!--                <td id="zone_b-distance">-</td>-->
-            <!--                <td><button onclick="location.href='#'">지도 이동</button></td>-->
-            <!--            </tr>-->
-            <!--            <tr>-->
-            <!--                <td>구역 C</td>-->
-            <!--                <th></th>-->
-            <!--                <td id="zone_c-time">-</td>-->
-            <!--                <td id="zone_c-distance">-</td>-->
-            <!--                <td><button onclick="location.href='#'">지도 이동</button></td>-->
-            <!--            </tr>-->
             </tbody>
         </table>
     </div>
@@ -207,6 +186,42 @@
     // 1초마다 시간 갱신
     setInterval(updateTime, 1000);
     updateTime(); // 즉시 실행
+
+    // 구역 활성화/비활성화 상태 변경 및 버튼 색상 변경
+    function toggleZone(zoneId) {
+        fetch(`/zones/${zoneId}/toggle`, {
+            method: 'POST',
+        })
+            .then(response => response.json())
+            .then(data => {
+                updateZoneUI(zoneId, data.status); // UI 업데이트
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // WebSocket 연결 설정
+    const socket = new SockJS('/ws');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+
+        // 구역 상태 업데이트 수신
+        stompClient.subscribe('/topic/zoneStatus', function (message) {
+            const statusData = JSON.parse(message.body); // 예: { "zoneId": "zone_a", "status": true }
+            updateZoneUI(statusData.zoneId, statusData.status);
+        });
+    });
+
+    // 구역 UI 업데이트 함수
+    function updateZoneUI(zoneId, isActive) {
+        const button = document.getElementById(`${zoneId}_btn`);
+        if (isActive) {
+            button.style.backgroundColor = '#4CAF50'; // 활성화 상태 (초록색)
+        } else {
+            button.style.backgroundColor = '#ccc'; // 비활성화 상태 (회색)
+        }
+    }
 </script>
 
 <script src="/js/app.js"></script>

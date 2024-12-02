@@ -14,13 +14,12 @@ import java.util.Map;
 @RequestMapping("/zones")
 public class ZoneController {
 
-    private final SimpMessagingTemplate messagingTemplate; // SimpMessagingTemplate 인젝션
+    private final SimpMessagingTemplate messagingTemplate;
     private Map<String, Boolean> zoneStatus = new HashMap<>();
 
-    // 구역 상태 초기화 (예: 구역 A, B, C)
     public ZoneController(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate; // SimpMessagingTemplate 초기화
-        zoneStatus.put("zone_a", false); // 초기 상태는 비활성화
+        this.messagingTemplate = messagingTemplate;
+        zoneStatus.put("zone_a", false);
         zoneStatus.put("zone_b", false);
         zoneStatus.put("zone_c", false);
     }
@@ -31,10 +30,9 @@ public class ZoneController {
         return "home";
     }
 
-    // 구역 활성화/비활성화 상태 변경
     @PostMapping("/{zoneId}/toggle")
     public ResponseEntity<Map<String, Boolean>> toggleZone(@PathVariable String zoneId) {
-        boolean newStatus = toggleZoneStatus(zoneId); // 상태 반전
+        boolean newStatus = toggleZoneStatus(zoneId);
 
         // WebSocket을 통해 실시간 업데이트 전송
         String statusMessage = String.format("{\"zoneId\": \"%s\", \"status\": %b}", zoneId, newStatus);
@@ -46,14 +44,12 @@ public class ZoneController {
     }
 
     private boolean toggleZoneStatus(String zoneId) {
-        boolean currentStatus = zoneStatus.getOrDefault(zoneId, false); // 현재 상태 가져오기 (기본값: false)
-        boolean newStatus = !currentStatus; // 상태 반전
-        zoneStatus.put(zoneId, newStatus); // 반전된 상태를 저장
-        return newStatus; // 새로운 상태 반환
+        boolean currentStatus = zoneStatus.getOrDefault(zoneId, false);
+        boolean newStatus = !currentStatus;
+        zoneStatus.put(zoneId, newStatus);
+        return newStatus;
     }
 
-
-    // 구역 상태 가져오기
     @GetMapping("/{zoneId}")
     public ResponseEntity<Boolean> getZoneStatus(@PathVariable String zoneId) {
         Boolean status = zoneStatus.get(zoneId);
@@ -63,7 +59,6 @@ public class ZoneController {
         return ResponseEntity.ok(status);
     }
 
-    // Getter to access the zoneStatus map for Thymeleaf
     public Map<String, Boolean> getZoneStatus() {
         return zoneStatus;
     }
