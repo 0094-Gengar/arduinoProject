@@ -2,6 +2,7 @@ package com.example.arduino_project.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +14,12 @@ import java.util.Map;
 @RequestMapping("/zones")
 public class ZoneController {
 
+    private final SimpMessagingTemplate messagingTemplate; // SimpMessagingTemplate 인젝션
     private Map<String, Boolean> zoneStatus = new HashMap<>();
 
     // 구역 상태 초기화 (예: 구역 A, B, C)
-    public ZoneController() {
+    public ZoneController(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate; // SimpMessagingTemplate 초기화
         zoneStatus.put("zone_a", false); // 초기 상태는 비활성화
         zoneStatus.put("zone_b", false);
         zoneStatus.put("zone_c", false);
@@ -37,6 +40,9 @@ public class ZoneController {
 
         boolean currentStatus = zoneStatus.get(zoneId);
         zoneStatus.put(zoneId, !currentStatus); // 상태 반전
+
+        // 상태 변경 후 WebSocket을 통해 알리기
+        messagingTemplate.convertAndSend("/topic/zoneStatus", zoneId); // 구역 ID를 클라이언트로 전송
 
         return ResponseEntity.ok("Zone " + zoneId + " updated to " + !currentStatus);
     }
