@@ -31,15 +31,19 @@ public class ZoneController {
     }
 
     @PostMapping("/{zoneId}/toggle")
-    public ResponseEntity<Map<String, Boolean>> toggleZone(@PathVariable String zoneId) {
+    public ResponseEntity<Map<String, String>> toggleZone(@PathVariable String zoneId) {
         boolean newStatus = toggleZoneStatus(zoneId);
 
+        // 'true'일 때는 'zone_on', 'false'일 때는 'zone_off'로 변환
+        String status = newStatus ? "zone_on" : "zone_off";
+
         // WebSocket을 통해 실시간 업데이트 전송
-        String statusMessage = String.format("{\"zoneId\": \"%s\", \"status\": %b}", zoneId, newStatus);
+        String statusMessage = String.format("{\"zoneId\": \"%s\", \"status\": \"%s\"}", zoneId, status);
         messagingTemplate.convertAndSend("/topic/zoneStatus", statusMessage);
 
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("status", newStatus);
+        Map<String, String> response = new HashMap<>();
+        response.put("status", status);  // 응답을 'zone_on' 또는 'zone_off'로 설정
+
         return ResponseEntity.ok(response);
     }
 

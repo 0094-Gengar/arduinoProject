@@ -17,7 +17,9 @@ function toggleZone(zoneId) {
     })
         .then(response => response.json())
         .then(data => {
-            updateZoneUI(zoneId, data.status); // UI 업데이트
+            // 상태를 'zone_on' 또는 'zone_off'로 변환
+            const status = data.status ? 'zone_on' : 'zone_off';
+            updateZoneUI(zoneId, status); // UI 업데이트
         })
         .catch(error => console.error('Error:', error));
 }
@@ -32,16 +34,19 @@ stompClient.connect({}, function (frame) {
     // 구역 상태 업데이트 수신
     stompClient.subscribe('/topic/zoneStatus', function (message) {
         const statusData = JSON.parse(message.body); // 예: { "zoneId": "zone_a", "status": true }
-        updateZoneUI(statusData.zoneId, statusData.status);
+
+        // 상태를 'zone_on' 또는 'zone_off'로 변환
+        const status = statusData.status ? 'zone_on' : 'zone_off';
+        updateZoneUI(statusData.zoneId, status);
     });
 });
 
 // 구역 UI 업데이트 함수
-function updateZoneUI(zoneId, isActive) {
+function updateZoneUI(zoneId, status) {
     const button = document.getElementById(`${zoneId}_btn`);
-    if (isActive) {
+    if (status === 'zone_on') {
         button.style.backgroundColor = '#4CAF50'; // 활성화 상태 (초록색)
-    } else {
+    } else if (status === 'zone_off') {
         button.style.backgroundColor = '#ccc'; // 비활성화 상태 (회색)
     }
 }
