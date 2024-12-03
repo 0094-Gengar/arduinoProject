@@ -1,41 +1,30 @@
-// 실시간 시간 갱신 함수
-function updateTime() {
-    const now = new Date();
-    const options = {
-        month: 'long',
-        day: 'numeric',
-        weekday: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    };
-    const formattedTime = now.toLocaleString('ko-KR', options).replace(',', ' ');
-    document.getElementById('date-time').innerText = formattedTime;
-}
-
-// 1초마다 시간 갱신
-setInterval(updateTime, 1000);
-updateTime(); // 즉시 실행
-
 // 구역 활성화/비활성화 상태 변경 및 버튼 색상 변경
 function toggleZone(zoneId) {
     console.log(`Toggling zone: ${zoneId}`); // 디버깅 로그
 
+    // 현재 버튼 상태를 즉시 업데이트 (UI 반영)
+    const currentButton = document.getElementById(`${zoneId}_btn`);
+    const currentStatus = currentButton.style.backgroundColor === 'rgb(76, 175, 80)' ? 'zone_on' : 'zone_off';
+    const newStatus = currentStatus === 'zone_on' ? 'zone_off' : 'zone_on';
+
+    updateZoneUI(zoneId, newStatus); // UI를 먼저 업데이트
+
+    // 서버와 통신하여 상태 변경
     fetch(`/zones/${zoneId}/toggle`, {
         method: 'POST',
     })
         .then(response => response.json())
         .then(data => {
-            console.log('Response Data:', data);               // 전체 데이터 확인
-            console.log('Status Type:', typeof data.status);   // 타입 확인
-            console.log('Status Value:', `"${data.status}"`);  // 값 확인 (공백 포함 여부 확인)
-
-            // 상태를 'zone_on' 또는 'zone_off'로 변환
+            console.log('Response Data:', data);
             const status = data.status.trim() === 'zone_on' ? 'zone_on' : 'zone_off';
-            console.log(`Zone ${zoneId} updated to: ${status}`); // 상태 변경 로그
-            updateZoneUI(zoneId, status); // UI 업데이트
+            // 서버에서 받은 응답에 따라 상태를 재확인하고 UI 업데이트
+            updateZoneUI(zoneId, status);
         })
-        .catch(error => console.error('Error in toggleZone:', error));
+        .catch(error => {
+            console.error('Error in toggleZone:', error);
+            // 만약 서버 요청에 실패하면, UI를 원래 상태로 복구
+            updateZoneUI(zoneId, currentStatus);
+        });
 }
 
 // WebSocket 연결 설정 (변수 이름을 'socketClient'로 변경)
