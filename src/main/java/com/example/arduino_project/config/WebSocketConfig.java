@@ -20,7 +20,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // 클라이언트가 연결할 수 있는 WebSocket 엔드포인트 설정
         registry.addEndpoint("/ws").withSockJS();
+        registry.addEndpoint("/ws").setAllowedOrigins("https://full-bedbug-0094-gengar-e52ccc05.koyeb.app");
     }
 }

@@ -39,7 +39,7 @@ function toggleZone(zoneId) {
 }
 
 // WebSocket 연결 설정 (변수 이름을 'socketClient'로 변경)
-const socketClient = new SockJS('/ws');
+const socketClient = new SockJS('https://full-bedbug-0094-gengar-e52ccc05.koyeb.app/ws');
 const stompClient = Stomp.over(socketClient);
 
 stompClient.connect({}, function (frame) {
