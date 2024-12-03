@@ -21,6 +21,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws").withSockJS();
-        registry.addEndpoint("/ws").setAllowedOrigins("https://full-bedbug-0094-gengar-e52ccc05.koyeb.app");
+        // 모든 도메인에서 WebSocket 연결을 허용하려면 아래와 같이 설정
+        registry.addEndpoint("/ws").setAllowedOrigins("*"); // '*'는 모든 도메인 허용
     }
+
 }
