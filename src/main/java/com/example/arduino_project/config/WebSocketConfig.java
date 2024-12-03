@@ -20,9 +20,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").withSockJS();
-        // 모든 도메인에서 WebSocket 연결을 허용하려면 아래와 같이 설정
-        registry.addEndpoint("/ws").setAllowedOrigins("*"); // '*'는 모든 도메인 허용
+        // WebSocket 연결 경로 설정
+        registry.addEndpoint("/ws").withSockJS(); // SockJS를 지원하도록 설정
+        // CORS 설정을 추가하여 모든 도메인에서 WebSocket 연결 허용
+        registry.addEndpoint("/ws").setAllowedOrigins("*");
     }
-
 }
