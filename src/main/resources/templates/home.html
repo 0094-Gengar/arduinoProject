@@ -199,20 +199,6 @@
             .catch(error => console.error('Error:', error));
     }
 
-    // // WebSocket 연결 설정
-    // const socket = new SockJS('/ws');
-    // const stompClient = Stomp.over(socket);
-    //
-    // stompClient.connect({}, function (frame) {
-    //     console.log('Connected: ' + frame);
-    //
-    //     // 구역 상태 업데이트 수신
-    //     stompClient.subscribe('/topic/zoneStatus', function (message) {
-    //         const statusData = JSON.parse(message.body); // 예: { "zoneId": "zone_a", "status": true }
-    //         updateZoneUI(statusData.zoneId, statusData.status);
-    //     });
-    // });
-
     // 구역 UI 업데이트 함수
     function updateZoneUI(zoneId, isActive) {
         const button = document.getElementById(`${zoneId}_btn`);
