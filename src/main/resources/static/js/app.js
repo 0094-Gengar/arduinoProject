@@ -13,6 +13,20 @@ function toggleZone(zoneId) {
     }
 }
 
+function checkAndUpdateZoneStatus(zoneId) {
+    fetch(`/zones/${zoneId}`)
+        .then(response => response.json())
+        .then(newStatus => {
+            const currentButton = document.getElementById(`${zoneId}_btn`);
+            const currentStatus = currentButton.style.backgroundColor === 'rgb(76, 175, 80)' ? 'zone_on' : 'zone_off';
+
+            if ((newStatus === true && currentStatus !== 'zone_on') || (newStatus === false && currentStatus !== 'zone_off')) {
+                updateZoneUI(zoneId, newStatus ? "zone_on" : "zone_off");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
 function updateZoneUI(zoneId, status) {
     const button = document.getElementById(`${zoneId}_btn`);
 
@@ -20,3 +34,9 @@ function updateZoneUI(zoneId, status) {
     button.style.backgroundColor = status === "zone_on" ? '#4CAF50' : '#ccc';
 }
 
+// 5초마다 상태를 확인하고, 변경이 있을 경우에만 UI를 갱신
+setInterval(() => {
+    checkAndUpdateZoneStatus("zone_a");
+    checkAndUpdateZoneStatus("zone_b");
+    checkAndUpdateZoneStatus("zone_c");
+}, 3000);
