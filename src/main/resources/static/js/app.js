@@ -5,19 +5,18 @@ function toggleZone(zoneId) {
 
     updateZoneUI(zoneId, newStatus); // 즉시 UI 반영
 
-    fetch(`/zones/${zoneId}/toggle`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            const status = data.status === 'zone_on' ? 'zone_on' : 'zone_off';
-            updateZoneUI(zoneId, status); // 서버 응답에 따른 최종 UI 업데이트
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            updateZoneUI(zoneId, currentStatus); // 오류 시 원래 상태로 복구
-        });
+    function toggleZone(zoneId) {
+        fetch(`/zones/${zoneId}/toggle`, {method: 'POST'})
+            .then(response => response.json())
+            .then(data => updateZoneUI(zoneId, data.status)) // data.status가 "zone_on" 또는 "zone_off"
+            .catch(error => console.error('Error:', error));
+    }
 }
 
 function updateZoneUI(zoneId, status) {
     const button = document.getElementById(`${zoneId}_btn`);
-    button.style.backgroundColor = status === 'zone_on' ? '#4CAF50' : '#ccc';
+
+    // status가 "zone_on"이면 녹색, "zone_off"이면 회색으로 변경
+    button.style.backgroundColor = status === "zone_on" ? '#4CAF50' : '#ccc';
 }
+
