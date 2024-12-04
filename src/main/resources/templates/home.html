@@ -133,15 +133,14 @@
         <div id="map">
             <img th:src="@{/map_sample.png}" alt="지도">
             <button class="map-button" id="zone_a_btn"
-                    th:style="'top: 30%; left: 40%; background-color: ' + (${zoneStatus['zone_a']} == 'zone_on' ? 'green' : 'gray')"
+                    th:style="'top: 30%; left: 40%; background-color: ' + (${zoneStatus['zone_a']} ? 'green' : 'gray')"
                     onclick="toggleZone('zone_a')">[구역 A]</button>
             <button class="map-button" id="zone_b_btn"
-                    th:style="'top: 50%; left: 70%; background-color: ' + (${zoneStatus['zone_b']} == 'zone_on' ? 'green' : 'gray')"
+                    th:style="'top: 50%; left: 70%; background-color: ' + (${zoneStatus['zone_b']} ? 'green' : 'gray')"
                     onclick="toggleZone('zone_b')">[구역 B]</button>
             <button class="map-button" id="zone_c_btn"
-                    th:style="'top: 80%; left: 20%; background-color: ' + (${zoneStatus['zone_c']} == 'zone_on' ? 'green' : 'gray')"
+                    th:style="'top: 80%; left: 20%; background-color: ' + (${zoneStatus['zone_c']} ? 'green' : 'gray')"
                     onclick="toggleZone('zone_c')">[구역 C]</button>
-
         </div>
     </div>
 
@@ -185,13 +184,17 @@
     function toggleZone(zoneId) {
         fetch(`/zones/${zoneId}/toggle`, { method: 'POST' })
             .then(response => response.json())
-            .then(data => updateZoneUI(zoneId, data.status)) // "zone_on" 또는 "zone_off"
+            .then(data => updateZoneUI(zoneId, data.status))
             .catch(error => console.error('Error:', error));
     }
 
     function updateZoneUI(zoneId, status) {
         const button = document.getElementById(`${zoneId}_btn`);
-        button.style.backgroundColor = (status === "zone_on") ? 'green' : 'gray'; // 상태에 따라 색상 변경
+        if (status === 'zone_on') {
+            button.style.backgroundColor = 'green';
+        } else {
+            button.style.backgroundColor = 'gray';
+        }
     }
 </script>
 
