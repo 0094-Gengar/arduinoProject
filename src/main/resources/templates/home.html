@@ -152,18 +152,18 @@
         <table>
             <thead>
             <tr>
-                <th></th>
+                <!--                <th></th>-->
                 <th>순찰 구역</th>
                 <th>순찰 시작 시간</th>
-                <th>순찰 경과 시간</th>
+                <th>총 순찰 시간</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-                <td class="highlight">LIVE</td>
+                <!--                <td class="highlight">LIVE</td>-->
                 <td id="live-zone"></td>
-                <td id="live-time">(실시간 정보)</td>
-                <td id="live-duration">(실시간 정보)</td>
+                <td id="live-time">-</td>
+                <td id="live-duration">-</td>
             </tr>
             </tbody>
         </table>
@@ -199,6 +199,8 @@
                 updateZoneUI(zoneId, data.status);
                 if (data.status === 'zone_on' && data.startTime) {
                     updatePatrolInfo(zoneId, parseInt(data.startTime));
+                } else if (data.status === 'zone_off' && data.duration) {
+                    updatePatrolInfoWithDuration(zoneId, data.duration);  // 서버에서 반환된 duration 문자열 그대로 사용
                 }
             })
             .catch(error => console.error('Error:', error));
@@ -219,11 +221,14 @@
         liveDuration.innerText = formatDuration(Date.now() - startTime);
     }
 
-    function formatDuration(milliseconds) {
-        const hours = Math.floor(milliseconds / (1000 * 60 * 60));
-        const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
-        return `${hours}h ${minutes}m ${seconds}s`;
+    function updatePatrolInfoWithDuration(zoneId, duration) {
+        const liveZone = document.getElementById('live-zone');
+        const liveTime = document.getElementById('live-time');
+        const liveDuration = document.getElementById('live-duration');
+
+        liveZone.innerText = `[${zoneId.toUpperCase()}]`;
+        // liveTime.innerText = "(순찰 종료)";
+        liveDuration.innerText = duration;  // 서버에서 받은 duration 문자열을 그대로 사용
     }
 </script>
 

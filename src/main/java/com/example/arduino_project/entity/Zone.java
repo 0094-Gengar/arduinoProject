@@ -11,6 +11,7 @@ public class Zone {
 
     private boolean status;
     private Long startTime;  // 순찰 시작 시간을 저장하는 필드
+    private Long endTime;  // 순찰 종료 시간을 저장하는 필드
 
     // 기본 생성자
     public Zone() {}
@@ -42,5 +43,13 @@ public class Zone {
 
     public void setStartTime(Long startTime) {
         this.startTime = startTime;
+    }
+
+    public Long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Long endTime) {
+        this.endTime = endTime;
     }
 }
