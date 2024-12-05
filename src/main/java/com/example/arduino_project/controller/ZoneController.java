@@ -48,32 +48,31 @@ public class ZoneController {
     @PostMapping("/{zoneId}/toggle")
     @ResponseBody
     public ResponseEntity<Map<String, String>> toggleZone(@PathVariable String zoneId) {
-        return processZoneToggle(zoneId, false);
-    }
-
-    // 아두이노로부터 JSON POST 요청 처리
-    @PostMapping("/{zoneId}/arduino")
-    @ResponseBody
-    public ResponseEntity<Map<String, String>> toggleZoneFromArduino(@PathVariable String zoneId, @RequestBody Map<String, String> payload) {
-        // 아두이노에서 태그 검출 시 호출하는 메서드
-        return processZoneToggle(zoneId, true);
+        return processZoneToggle(zoneId);
     }
 
     // 공통 처리 로직 분리
-    private ResponseEntity<Map<String, String>> processZoneToggle(String zoneId, boolean fromArduino) {
+    private ResponseEntity<Map<String, String>> processZoneToggle(String zoneId) {
         Optional<Zone> optionalZone = zoneRepository.findById(zoneId);
         if (optionalZone.isPresent()) {
             Zone zone = optionalZone.get();
             boolean newStatus = !zone.isStatus();
             zone.setStatus(newStatus);
+
+            if (newStatus) {
+                zone.setStartTime(System.currentTimeMillis());  // 순찰 시작 시간 설정
+            } else {
+                zone.setStartTime(null);  // 순찰이 종료되면 시간 초기화 (선택 사항)
+            }
+
             zoneRepository.save(zone);
 
             Map<String, String> response = new HashMap<>();
             response.put("zoneId", zoneId);
             response.put("status", newStatus ? "zone_on" : "zone_off");
 
-            if (newStatus && fromArduino) {
-                response.put("startTime", String.valueOf(System.currentTimeMillis())); // 아두이노 요청 시만 시간 반환
+            if (newStatus) {
+                response.put("startTime", String.valueOf(zone.getStartTime()));  // startTime만 반환
             }
 
             return ResponseEntity.ok(response);

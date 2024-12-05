@@ -214,29 +214,18 @@
         const liveTime = document.getElementById('live-time');
         const liveDuration = document.getElementById('live-duration');
 
-        liveZone.innerText = `[${zoneId.toUpperCase()}]`;
+        liveZone.innerText = zoneId;
+        liveTime.innerText = new Date(startTime).toLocaleString();
+        liveDuration.innerText = formatDuration(Date.now() - startTime);
+    }
 
-        const startDate = new Date(startTime);
-        liveTime.innerText = startDate.toLocaleString('ko-KR', {
-            month: 'long',
-            day: 'numeric',
-            weekday: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-        });
-
-        // 실시간 경과 시간 업데이트
-        clearInterval(window.patrolInterval); // 중복 방지용 인터벌 초기화
-        window.patrolInterval = setInterval(() => {
-            const now = new Date();
-            const elapsed = now - startDate;
-            const minutes = Math.floor(elapsed / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            liveDuration.innerText = `${minutes}분 ${seconds}초`;
-        }, 1000);
+    function formatDuration(milliseconds) {
+        const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+        const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
+        return `${hours}h ${minutes}m ${seconds}s`;
     }
 </script>
+
 </body>
 </html>
-

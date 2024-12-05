@@ -1,34 +1,27 @@
-// 서버로부터 상태를 변경하고, 즉시 UI를 반영하는 함수
-function toggleZone(zoneId) {
-    const currentButton = document.getElementById(`${zoneId}_btn`);
-    const currentStatus = currentButton.style.backgroundColor === 'rgb(76, 175, 80)' ? 'zone_on' : 'zone_off';
-    const newStatus = currentStatus === 'zone_on' ? 'zone_off' : 'zone_on';
-
-    updateZoneUI(zoneId, newStatus); // 즉시 UI 반영
-
-    // 서버에 상태 변경 요청 (POST)
-    fetch(`/zones/${zoneId}/toggle`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => updateZoneUI(zoneId, data.status)) // 서버 응답 기반 UI 갱신
-        .catch(error => console.error('Error:', error));
+function updateTime() {
+    const now = new Date();
+    const options = {
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
+    const formattedTime = now.toLocaleString('ko-KR', options).replace(',', ' ');
+    document.getElementById('date-time').innerText = formattedTime;
 }
 
-function checkAndUpdateZoneStatus(zoneId) {
-    fetch(`https://full-bedbug-0094-gengar-e52ccc05.koyeb.app/zones/${zoneId}`) // 절대 경로 사용
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json(); // JSON으로 변환
-        })
-        .then(data => {
-            const newStatus = data === true ? 'zone_on' : 'zone_off'; // 응답이 true/false로 오기 때문에 상태 변환
-            const currentButton = document.getElementById(`${zoneId}_btn`);
-            const currentStatus = currentButton.style.backgroundColor === 'rgb(76, 175, 80)' ? 'zone_on' : 'zone_off';
+setInterval(updateTime, 1000);
+updateTime();
 
-            // 상태가 변경된 경우에만 UI 업데이트
-            if (newStatus !== currentStatus) {
-                updateZoneUI(zoneId, newStatus);
+function toggleZone(zoneId) {
+    fetch(`/zones/${zoneId}/toggle`, {method: 'POST'})
+        .then(response => response.json())
+        .then(data => {
+            updateZoneUI(zoneId, data.status);
+            if (data.status === 'zone_on' && data.startTime) {
+                updatePatrolInfo(zoneId, parseInt(data.startTime));
             }
         })
         .catch(error => console.error('Error:', error));
@@ -36,17 +29,41 @@ function checkAndUpdateZoneStatus(zoneId) {
 
 function updateZoneUI(zoneId, status) {
     const button = document.getElementById(`${zoneId}_btn`);
-    button.style.backgroundColor = status === "zone_on" ? '#4CAF50' : '#ccc';
-
-    // 현재 시간 표시
-    const timeElement = document.getElementById(`${zoneId}_time`);
-    const currentTime = new Date().toLocaleTimeString();
-    timeElement.textContent = `Last updated: ${currentTime}`;
+    button.style.backgroundColor = status === 'zone_on' ? 'green' : 'gray';
 }
 
-// 2초마다 상태 확인
-setInterval(() => {
-    checkAndUpdateZoneStatus("zone_a");
-    checkAndUpdateZoneStatus("zone_b");
-    checkAndUpdateZoneStatus("zone_c");
-}, 2000);
+function updatePatrolInfo(zoneId, startTime) {
+    const liveZone = document.getElementById('live-zone');
+    const liveTime = document.getElementById('live-time');
+    const liveDuration = document.getElementById('live-duration');
+
+    liveZone.innerText = `[${zoneId.toUpperCase()}]`;
+
+    const startDate = new Date(startTime);  // 서버에서 받은 startTime을 Date 객체로 변환
+    liveTime.innerText = startDate.toLocaleString('ko-KR', {
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+    });
+
+    // 실시간 경과 시간 업데이트
+    clearInterval(window.patrolInterval); // 중복 방지용 인터벌 초기화
+    window.patrolInterval = setInterval(() => {
+        const now = new Date();
+        const elapsed = now - startDate;  // 경과 시간 계산
+        const minutes = Math.floor(elapsed / 60000); // 분 단위로 계산
+        const seconds = Math.floor((elapsed % 60000) / 1000); // 초 단위로 계산
+        liveDuration.innerText = `${minutes}분 ${seconds}초`;
+    }, 1000);
+}
+
+
+function formatDuration(milliseconds) {
+    const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+    const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
+    return `${hours}h ${minutes}m ${seconds}s`;
+}
