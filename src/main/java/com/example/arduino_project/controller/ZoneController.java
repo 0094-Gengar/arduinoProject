@@ -50,10 +50,16 @@ public class ZoneController {
             Map<String, String> response = new HashMap<>();
             response.put("zoneId", zoneId);
             response.put("status", newStatus ? "zone_on" : "zone_off");
+
+            if (newStatus) {
+                response.put("startTime", String.valueOf(System.currentTimeMillis())); // 시작 시간 반환
+            }
+
             return ResponseEntity.ok(response);
         }
-        return ResponseEntity.badRequest().build(); // 유효하지 않은 zoneId 처리
+        return ResponseEntity.badRequest().build();
     }
+
 
     @GetMapping("/{zoneId}")
     public ResponseEntity<Boolean> getZoneStatus(@PathVariable String zoneId) {

@@ -134,13 +134,16 @@
             <img th:src="@{/map_sample.png}" alt="지도">
             <button class="map-button" id="zone_a_btn"
                     th:style="'top: 30%; left: 40%; background-color: ' + (${zoneStatus['zone_a']} ? 'green' : 'gray')"
-                    onclick="toggleZone('zone_a')">[구역 A]</button>
+                    onclick="toggleZone('zone_a')">[구역 A]
+            </button>
             <button class="map-button" id="zone_b_btn"
                     th:style="'top: 50%; left: 70%; background-color: ' + (${zoneStatus['zone_b']} ? 'green' : 'gray')"
-                    onclick="toggleZone('zone_b')">[구역 B]</button>
+                    onclick="toggleZone('zone_b')">[구역 B]
+            </button>
             <button class="map-button" id="zone_c_btn"
                     th:style="'top: 80%; left: 20%; background-color: ' + (${zoneStatus['zone_c']} ? 'green' : 'gray')"
-                    onclick="toggleZone('zone_c')">[구역 C]</button>
+                    onclick="toggleZone('zone_c')">[구역 C]
+            </button>
         </div>
     </div>
 
@@ -174,27 +177,64 @@
 <script>
     function updateTime() {
         const now = new Date();
-        const options = { month: 'long', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        const options = {
+            month: 'long',
+            day: 'numeric',
+            weekday: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        };
         const formattedTime = now.toLocaleString('ko-KR', options).replace(',', ' ');
         document.getElementById('date-time').innerText = formattedTime;
     }
+
     setInterval(updateTime, 1000);
     updateTime();
 
     function toggleZone(zoneId) {
-        fetch(`/zones/${zoneId}/toggle`, { method: 'POST' })
+        fetch(`/zones/${zoneId}/toggle`, {method: 'POST'})
             .then(response => response.json())
-            .then(data => updateZoneUI(zoneId, data.status))
+            .then(data => {
+                updateZoneUI(zoneId, data.status);
+                if (data.status === 'zone_on' && data.startTime) {
+                    updatePatrolInfo(zoneId, parseInt(data.startTime));
+                }
+            })
             .catch(error => console.error('Error:', error));
     }
 
     function updateZoneUI(zoneId, status) {
         const button = document.getElementById(`${zoneId}_btn`);
-        if (status === 'zone_on') {
-            button.style.backgroundColor = 'green';
-        } else {
-            button.style.backgroundColor = 'gray';
-        }
+        button.style.backgroundColor = status === 'zone_on' ? 'green' : 'gray';
+    }
+
+    function updatePatrolInfo(zoneId, startTime) {
+        const liveZone = document.getElementById('live-zone');
+        const liveTime = document.getElementById('live-time');
+        const liveDuration = document.getElementById('live-duration');
+
+        liveZone.innerText = `[${zoneId.toUpperCase()}]`;
+
+        const startDate = new Date(startTime);
+        liveTime.innerText = startDate.toLocaleString('ko-KR', {
+            month: 'long',
+            day: 'numeric',
+            weekday: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+
+        // 실시간 경과 시간 업데이트
+        clearInterval(window.patrolInterval); // 중복 방지용 인터벌 초기화
+        window.patrolInterval = setInterval(() => {
+            const now = new Date();
+            const elapsed = now - startDate;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            liveDuration.innerText = `${minutes}분 ${seconds}초`;
+        }, 1000);
     }
 </script>
 </body>
