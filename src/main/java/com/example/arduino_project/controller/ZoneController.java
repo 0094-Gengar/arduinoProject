@@ -28,6 +28,12 @@ public class ZoneController {
         }
     }
 
+    // /zones/home으로 리다이렉트 추가
+    @GetMapping("/")
+    public String redirectToHome() {
+        return "redirect:/zones/home";
+    }
+
     @GetMapping("/home")
     public String home(Model model) {
         Map<String, Boolean> zoneStatus = new HashMap<>();
