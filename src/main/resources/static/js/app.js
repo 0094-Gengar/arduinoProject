@@ -13,30 +13,38 @@ function toggleZone(zoneId) {
         .catch(error => console.error('Error:', error));
 }
 
-// 서버 상태를 주기적으로 확인하여 UI를 업데이트하는 함수
 function checkAndUpdateZoneStatus(zoneId) {
-    fetch(`/zones/${zoneId}`)
-        .then(response => response.json())
+    fetch(`https://full-bedbug-0094-gengar-e52ccc05.koyeb.app/zones/${zoneId}`) // 절대 경로 사용
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json(); // JSON으로 변환
+        })
         .then(data => {
-            const newStatus = data.status;
+            const newStatus = data === true ? 'zone_on' : 'zone_off'; // 응답이 true/false로 오기 때문에 상태 변환
             const currentButton = document.getElementById(`${zoneId}_btn`);
             const currentStatus = currentButton.style.backgroundColor === 'rgb(76, 175, 80)' ? 'zone_on' : 'zone_off';
 
-            if ((newStatus === 'zone_on' && currentStatus !== 'zone_on') ||
-                (newStatus === 'zone_off' && currentStatus !== 'zone_off')) {
+            // 상태가 변경된 경우에만 UI 업데이트
+            if (newStatus !== currentStatus) {
                 updateZoneUI(zoneId, newStatus);
             }
         })
         .catch(error => console.error('Error:', error));
 }
 
-// UI를 업데이트하는 함수 (버튼 색상 변경)
 function updateZoneUI(zoneId, status) {
     const button = document.getElementById(`${zoneId}_btn`);
-    button.style.backgroundColor = status === 'zone_on' ? '#4CAF50' : '#ccc';
+    button.style.backgroundColor = status === "zone_on" ? '#4CAF50' : '#ccc';
+
+    // 현재 시간 표시
+    const timeElement = document.getElementById(`${zoneId}_time`);
+    const currentTime = new Date().toLocaleTimeString();
+    timeElement.textContent = `Last updated: ${currentTime}`;
 }
 
-// 3초마다 상태를 확인하여 UI를 갱신하는 주기적 호출
+// 2초마다 상태 확인
 setInterval(() => {
     checkAndUpdateZoneStatus("zone_a");
     checkAndUpdateZoneStatus("zone_b");
