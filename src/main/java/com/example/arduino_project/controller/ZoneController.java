@@ -99,7 +99,7 @@ public class ZoneController {
     @ResponseBody
     public ResponseEntity<Boolean> getZoneStatus(@PathVariable String zoneId) {
         return zoneRepository.findById(zoneId)
-                .map(zone -> ResponseEntity.ok(zone.isStatus()))
+                .map(zone -> ResponseEntity.ok(zone.isStatus()||zone.isUrgent()))
                 .orElse(ResponseEntity.badRequest().build());
     }
 
