@@ -96,7 +96,7 @@ public class ZoneController {
                 .orElse(ResponseEntity.badRequest().build());
     }
 
-    // 경과 시간만 반환하는 엔드포인트 추가
+    // 경과 시간만 반환하는 엔드포인트 추가(푸쉬 하고 싶어요)
     @GetMapping("/{zoneId}/duration")
     @ResponseBody
     public ResponseEntity<Map<String, String>> getDuration(@PathVariable String zoneId) {
