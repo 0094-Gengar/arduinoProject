@@ -21,6 +21,13 @@ public class ZoneController {
 
     public ZoneController(ZoneRepository zoneRepository) {
         this.zoneRepository = zoneRepository;
+
+        // 초기 상태 설정: 존재하지 않으면 기본 구역 생성
+        if (!zoneRepository.existsById("zone_a")) {
+            zoneRepository.save(new Zone("zone_a", false));
+            zoneRepository.save(new Zone("zone_b", false));
+            zoneRepository.save(new Zone("zone_c", false));
+        }
     }
 
     @GetMapping("/")

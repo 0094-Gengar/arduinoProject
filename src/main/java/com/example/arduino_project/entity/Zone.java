@@ -22,6 +22,14 @@ public class Zone {
     public Zone() {
     }
 
+    public Zone(String zoneId, boolean status) {
+        this.zoneId = zoneId;
+        this.status = status;
+        this.startTime = 0L;
+        this.endTime = 0L;
+        this.urgent = false;
+    }
+
     public Zone(String zoneId, boolean status, Long startTime, Long endTime, boolean urgent) {
         this.zoneId = zoneId;
         this.status = status;
