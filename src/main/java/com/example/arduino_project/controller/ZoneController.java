@@ -64,10 +64,10 @@ public class ZoneController {
             Zone zone = optionalZone.get();
             boolean newUrgent = !zone.isUrgent();
             if (newUrgent) { // 순찰 시작s
-                zone.setStartTime(System.currentTimeMillis());
+                zone.setStartTime(getCurrentMS());
             } else { // 순찰 종료
                 zone.setStartTime(0L);
-                zone.setEndTime(System.currentTimeMillis());
+                zone.setEndTime(getCurrentMS());
             }
             zone.setUrgent(newUrgent);
             zoneRepository.save(zone);
@@ -112,5 +112,14 @@ public class ZoneController {
             Zone zone = optionalZone.get();
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    private Long getCurrentMS() {
+        // 현재 UTC 밀리초
+        long utcMillis = System.currentTimeMillis();
+
+        // UTC 밀리초에 KST 오프셋(9시간) 추가
+        long kstMillis = utcMillis + (9 * 60 * 60 * 1000);
+        return kstMillis;
     }
 }

@@ -35,7 +35,10 @@ public class ZoneDTO {
     // 경과 시간을 hh:mm:ss 형식으로 변환하는 함수
     private String formatDuration(long startTimeMs) {
         // 현재 시간을 가져옴
-        long currentTimeMs = System.currentTimeMillis();
+        long utcMillis = System.currentTimeMillis();
+
+        // UTC 밀리초에 KST 오프셋(9시간) 추가
+        long currentTimeMs = utcMillis + (9 * 60 * 60 * 1000);
 
         // 경과 시간 계산
         long durationMs = currentTimeMs - startTimeMs;  // 시작 시간과 현재 시간의 차이
