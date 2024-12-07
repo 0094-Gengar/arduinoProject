@@ -1,5 +1,6 @@
 package com.example.arduino_project.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
@@ -10,15 +11,23 @@ public class Zone {
     private String zoneId;
 
     private boolean status;
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private Long startTime;  // 순찰 시작 시간을 저장하는 필드
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private Long endTime;  // 순찰 종료 시간을 저장하는 필드
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean urgent;
 
     // 기본 생성자
-    public Zone() {}
+    public Zone() {
+    }
 
-    public Zone(String zoneId, boolean status) {
+    public Zone(String zoneId, boolean status, Long startTime, Long endTime, boolean urgent) {
         this.zoneId = zoneId;
         this.status = status;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.urgent = urgent;
     }
 
     public String getZoneId() {
@@ -51,5 +60,13 @@ public class Zone {
 
     public void setEndTime(Long endTime) {
         this.endTime = endTime;
+    }
+
+    public boolean isUrgent() {
+        return urgent;
+    }
+
+    public void setUrgent(boolean urgent) {
+        this.urgent = urgent;
     }
 }

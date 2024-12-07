@@ -49,19 +49,6 @@
             margin-bottom: 10px;
         }
 
-        #map {
-            position: relative;
-            width: 70%;
-            margin: 0 auto;
-            border: 1px solid #ccc;
-            padding: 5px;
-        }
-
-        #map img {
-            width: 100%;
-            height: auto;
-        }
-
         .map-button {
             position: absolute;
             background-color: #ff6347;
@@ -118,6 +105,24 @@
             color: #888;
             font-size: 0.8em;
         }
+
+        .responsive-map {
+            width: 50%;  /* 화면 너비의 80%로 크기 설정 */
+            height: auto; /* 세로 비율을 자동으로 맞추기 */
+            max-width: 100%;  /* 최대 너비 100%로 설정 */
+            display: block;   /* 블록 요소로 설정하여 여백 제거 */
+            margin: 0 auto;   /* 가운데 정렬 */
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
+
+        /* 화면 크기가 600px 이하일 경우, 이미지 크기 조정 */
+        @media (max-width: 600px) {
+            .responsive-map {
+                width: auto;  /* 600px 이하 화면에서 너비를 100%로 설정 */
+                height: 30%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -128,42 +133,47 @@
 </header>
 
 <main>
+
     <div class="section-container">
         <div class="section-title">&lt;순찰 구역 지도&gt;</div>
         <div id="map">
-            <img th:src="@{/map_sample.png}" alt="지도">
+            <img th:src="@{/map_line.png}" alt="지도" class="responsive-map">
+
+            <!-- 구역 A 버튼 -->
             <button class="map-button" id="zone_a_btn"
-                    th:style="'top: 30%; left: 40%; background-color: ' + (${zoneStatus['zone_a']} ? 'green' : 'gray')"
-                    onclick="toggleZone('zone_a')">[구역 A]
+                    th:style="'top: 47%; left: 50%; background-color: ' + ${zones[0].urgent ? 'red' : (zones[0].status ? 'green' : 'gray')}"
+                    onclick="urgentZone('zone_a')">[구역 A]
             </button>
+
+            <!-- 구역 B 버튼 -->
             <button class="map-button" id="zone_b_btn"
-                    th:style="'top: 50%; left: 70%; background-color: ' + (${zoneStatus['zone_b']} ? 'green' : 'gray')"
-                    onclick="toggleZone('zone_b')">[구역 B]
+                    th:style="'top: 63%; left: 55%; background-color: ' + ${zones[1].urgent ? 'red' : (zones[1].status ? 'green' : 'gray')}"
+                    onclick="urgentZone('zone_b')">[구역 B]
             </button>
+
+            <!-- 구역 C 버튼 -->
             <button class="map-button" id="zone_c_btn"
-                    th:style="'top: 80%; left: 20%; background-color: ' + (${zoneStatus['zone_c']} ? 'green' : 'gray')"
-                    onclick="toggleZone('zone_c')">[구역 C]
+                    th:style="'top: 80%; left: 53%; background-color: ' + ${zones[2].urgent ? 'red' : (zones[2].status ? 'green' : 'gray')}"
+                    onclick="urgentZone('zone_c')">[구역 C]
             </button>
         </div>
     </div>
 
     <div class="section-container">
-        <div class="section-title">&lt;순찰 현황&gt;</div>
+        <div class="section-title">&lt;긴급 순찰 현황&gt;</div>
         <table>
             <thead>
             <tr>
-                <!--                <th></th>-->
                 <th>순찰 구역</th>
                 <th>순찰 시작 시간</th>
                 <th>총 순찰 시간</th>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <!--                <td class="highlight">LIVE</td>-->
-                <td id="live-zone"></td>
-                <td id="live-time">-</td>
-                <td id="live-duration">-</td>
+            <tr th:each="zone : ${zones}" th:if="${zone.urgent}">
+                <td th:text="${zone.zoneId}"></td>
+                <td th:text="${zone.startTime}"></td>
+                <td th:text="${zone.duration}"></td>
             </tr>
             </tbody>
         </table>
@@ -175,6 +185,11 @@
 </footer>
 
 <script>
+    // 3초마다 페이지 새로고침
+    setInterval(function() {
+        location.reload();  // 페이지 새로고침
+    }, 1000);  // 3000ms = 3초
+
     function updateTime() {
         const now = new Date();
         const options = {
@@ -191,6 +206,10 @@
 
     setInterval(updateTime, 1000);
     updateTime();
+
+    function urgentZone(zoneId) {
+        fetch(`/zones/${zoneId}/urgent`, {method: 'POST'})
+    }
 
     function toggleZone(zoneId) {
         fetch(`/zones/${zoneId}/toggle`, {method: 'POST'})
@@ -231,6 +250,5 @@
         liveDuration.innerText = duration;  // 서버에서 받은 duration 문자열을 그대로 사용
     }
 </script>
-
 </body>
 </html>
